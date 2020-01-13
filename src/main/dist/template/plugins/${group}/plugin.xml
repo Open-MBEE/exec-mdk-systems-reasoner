@@ -1,0 +1,17 @@
+<plugin
+        id="org.openmbee.mdk.systems_reasoner"
+        name="MDK Systems Reasoner"
+        internalVersion="${internal.version}"
+        version="${human.version}"
+        provider-name="OpenMBEE"
+        class-lookup="LocalFirst"
+        class="org.openmbee.mdk.systems_reasoner.SystemsReasonerPlugin">
+    <requires>
+        <api version="1.0"/>
+        <required-plugin id="gov.nasa.jpl.mbee.mdk" name="Model Development Kit"/>
+    </requires>
+    <runtime>
+        <!-- START AUTO-GENERATED -->
+        <!-- END AUTO-GENERATED -->
+    </runtime>
+</plugin>
