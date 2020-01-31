@@ -13,3 +13,4 @@ target
 *.diff
 rebel.xml
 .DS_Store
+.java-version
