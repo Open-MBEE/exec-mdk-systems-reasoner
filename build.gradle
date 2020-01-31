@@ -93,8 +93,8 @@ dependencies {
         preCompile group: 'com.nomagic', name: 'demomagicdraw', version: '190sp2', classifier: 'MagicDraw_Demo_190_sp2_no_install', ext: 'zip'
         preCompile group: 'com.nomagic', name: 'sysml', version: '190sp2', classifier: 'SysML_Plugin_190_sp2_bundle', ext: 'zip'
         preCompile group: 'com.nomagic', name: 'cst', version: '190sp2', classifier: 'Cameo_Simulation_Toolkit_Plugin_190_sp2', ext: 'zip'
-        preCompile group: 'org.openmbee.magicdraw.mdk', name: 'mdk', version: '4.1.3', classifier: 'plugin', ext: 'zip'
     }
+    preCompile group: 'org.openmbee.magicdraw.mdk', name: 'mdk', version: '4.2.0', classifier: 'plugin', ext: 'zip'
 
     // This ensures classpath load order to match the MagicDraw provided order and then includes extras needed for non-OpenAPI stuff.
     // This was necessary because of the Application class stubbing that was done in the chromium libraries.
