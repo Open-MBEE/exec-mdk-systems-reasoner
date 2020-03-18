@@ -35,7 +35,7 @@ apply plugin: 'rebel'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // mavenCentral()
+    maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local' }
     if (buildAccess == 'internal') {
         maven {
             url 'https://cae-artifactory.jpl.nasa.gov/artifactory/maven-libs-snapshot-virtual'
