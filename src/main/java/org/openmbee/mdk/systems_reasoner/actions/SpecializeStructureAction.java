@@ -2,6 +2,7 @@ package org.openmbee.mdk.systems_reasoner.actions;
 
 import com.nomagic.magicdraw.copypaste.CopyPasting;
 import com.nomagic.magicdraw.core.Application;
+import com.nomagic.magicdraw.core.Project;
 import com.nomagic.magicdraw.openapi.uml.SessionManager;
 import com.nomagic.magicdraw.ui.dialogs.MDDialogParentProvider;
 import com.nomagic.magicdraw.ui.dialogs.SelectElementInfo;
@@ -9,6 +10,8 @@ import com.nomagic.magicdraw.ui.dialogs.SelectElementTypes;
 import com.nomagic.magicdraw.ui.dialogs.selection.ElementSelectionDlg;
 import com.nomagic.magicdraw.ui.dialogs.selection.ElementSelectionDlgFactory;
 import com.nomagic.magicdraw.ui.dialogs.selection.SelectionMode;
+import com.nomagic.magicdraw.uml.BaseElement;
+import com.nomagic.magicdraw.uml.symbols.DiagramPresentationElement;
 import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdmodels.Model;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
@@ -94,7 +97,14 @@ public class SpecializeStructureAction extends SRAction {
         }
         visited.add(specific);
         visited.add(classifier);
-        specific.getGeneralization().clear();
+
+        // NOMAGIC-985 Model corruption `Relationship has no *client*` caused by Diagram copy-paste post-processing that clones Generalizations from the copied Diagram but conflicts with SR. Using specific.getGeneralization would be more proper, but Generalization#source attribute is missing. Monkey patch by force triggering Diagram post-processing and deleting.
+        Set<Diagram> nestedDiagrams = collectDiagrams(specific, new HashSet<>());
+        nestedDiagrams.stream().map(diagram -> Project.getProject(diagram).getDiagram(diagram)).filter(Objects::nonNull).forEach(DiagramPresentationElement::ensureLoaded);
+        new HashSet<>(specific.getGeneralization()).forEach(BaseElement::dispose);
+
+        Utils.createGeneralization(classifier, specific);
+
         ArrayList<RedefinableElement> redefinedElements = new ArrayList<>();
         for (NamedElement namedElement : specific.getOwnedMember()) {
             if (namedElement instanceof RedefinableElement && !((RedefinableElement) namedElement).isLeaf()) {
@@ -102,7 +112,6 @@ public class SpecializeStructureAction extends SRAction {
                 ((RedefinableElement) namedElement).getRedefinedElement().clear();
             }
         }
-        Utils.createGeneralization(classifier, specific);
 
         Set<NamedElement> members = new HashSet<>(specific.getInheritedMember());//
         //ClassifierHelper.collectInheritedAttributes(specific ,listOfAllMembers, false, true);
@@ -132,17 +141,18 @@ public class SpecializeStructureAction extends SRAction {
     }
 
 
-    private void deleteDiagrams(Namespace specific, ArrayList<Diagram> diagrams) {
+    private <R extends Collection<Diagram>> R collectDiagrams(Namespace specific, R diagrams) {
         for (NamedElement ne : specific.getOwnedMember()) {
             if (ne instanceof Diagram) {
                 diagrams.add((Diagram) ne);
             }
             else if (ne instanceof Namespace) {
                 for (NamedElement nam : ((Namespace) ne).getOwnedMember()) {
-                    deleteDiagrams((Namespace) nam, diagrams);
+                    collectDiagrams((Namespace) nam, diagrams);
                 }
             }
         }
+        return diagrams;
     }
 
 
