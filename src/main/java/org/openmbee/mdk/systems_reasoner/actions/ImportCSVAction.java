@@ -105,8 +105,8 @@ public class ImportCSVAction extends SRAction {
 
         for (Classifier element : createdElements) {
             for (Classifier general : element.getGeneral()) {
-                SRValidationSuite.checkAssociationsForInheritance(element, general);
-                ValidationRule ele = SRValidationSuite.getAssociationInheritanceRule();
+                SRValidationSuite.checkAssociationGeneralizations(element, general);
+                ValidationRule ele = SRValidationSuite.getAssociationGeneralizationRule();
                 for (ValidationRuleViolation violation : ele.getViolations()) {
                     NMAction action = violation.getActions().get(0);
                     action.actionPerformed(null);

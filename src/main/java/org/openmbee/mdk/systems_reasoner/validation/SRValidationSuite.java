@@ -13,6 +13,7 @@ import org.openmbee.mdk.systems_reasoner.actions.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 
 public class SRValidationSuite extends ValidationSuite implements Runnable {
 
@@ -30,11 +31,11 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
     private static final ValidationRule instanceClassifierExistenceRule = new ValidationRule("Instance Classifier Unspecified", "Instance classifier is not specified", ViolationSeverity.ERROR);
     private static final ValidationRule missingSlotsRule = new ValidationRule("Missing Slot(s) Detected", "Missing slot(s) detected", ViolationSeverity.ERROR);
 
-    public static ValidationRule getAssociationInheritanceRule() {
-        return associationInheritanceRule;
+    public static ValidationRule getAssociationGeneralizationRule() {
+        return associationGeneralizationRule;
     }
 
-    private static final ValidationRule associationInheritanceRule = new ValidationRule("Association inheritance missing.", "The association of the specialized element does not inherit from its general classifier.", ViolationSeverity.ERROR);
+    private static final ValidationRule associationGeneralizationRule = new ValidationRule("Missing Association Generalization", "The association of the specific does not generalize to that of the general", ViolationSeverity.ERROR);
 
     {
         this.addValidationRule(generalMissingRule);
@@ -46,7 +47,7 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
         this.addValidationRule(generalSpecificNameRule);
         this.addValidationRule(instanceClassifierExistenceRule);
         this.addValidationRule(missingSlotsRule);
-        this.addValidationRule(associationInheritanceRule);
+        this.addValidationRule(associationGeneralizationRule);
         this.addValidationRule(subsetsRule);
     }
 
@@ -92,7 +93,7 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
                 for (final Classifier general : classifier.getGeneral()) {
 
                     // Inheritance on Associations Rule
-                    checkAssociationsForInheritance(classifier, general);
+                    checkAssociationGeneralizations(classifier, general);
                     checkForAspects(classifier, general);
                 }
 
@@ -245,41 +246,43 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
         }
     }
 
-    public static void checkAssociationsForInheritance(Classifier classifier, Classifier general) {
-        assocRule:
-        for (Element child : classifier.getOwnedElement()) {
-            if (child instanceof Property) {
-                Type partType = ((Property) child).getType();
-                for (Element superChild : general.getOwnedElement()) {
-                    if (superChild instanceof Property) {
-                        Type superPartType = ((Property) superChild).getType();
-                        final ValidationRuleViolation v = new ValidationRuleViolation(classifier, associationInheritanceRule.getDescription() + ": [GENERAL] " + general.getName() + " - [SPECIFIC] " + classifier.getName());
-                        if (partType != null) {
-                            if (partType.equals(superPartType)) {
-                                if (hasAnAssociation(superChild)) {
-                                    if (hasInheritanceFromTo(((Property) child).getAssociation(), ((Property) superChild).getAssociation())) {
-                                        break assocRule;
-                                    }
-                                    else {
-                                        v.addAction(new AddInheritanceToAssociationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation()));
-                                        associationInheritanceRule.addViolation(v);
-                                    }
-                                }
-                            }
-                            else if (partType instanceof Classifier) {
-                                if (((Classifier) partType).getGeneral().contains(superPartType)) {
-                                    if (hasInheritanceFromTo(((Property) child).getAssociation(), ((Property) superChild).getAssociation())) {
-                                        break assocRule;
-                                    }
-                                    else {
-                                        v.addAction(new AddInheritanceToAssociationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation()));
-                                        associationInheritanceRule.addViolation(v);
-                                    }
-                                }
-                            }
-                        }
-                    }
+    public static void checkAssociationGeneralizations(Classifier special, Classifier general) {
+
+        property:
+        for (Element specialOwnedMember : special.getOwnedMember()) {
+            if (!(specialOwnedMember instanceof Property)) {
+                continue;
+            }
+            Property specialProperty = (Property) specialOwnedMember;
+
+            Type specialPropertyType = specialProperty.getType();
+            if (specialPropertyType == null) {
+                continue;
+            }
+
+            Association specialAssociation;
+            if ((specialAssociation = specialProperty.getAssociation()) == null) {
+                continue;
+            }
+
+            for (Property generalProperty : specialProperty.getRedefinedProperty()) {
+                if (!Objects.equals(generalProperty.getClassifier(), general)) {
+                    continue;
                 }
+
+                Association generalAssociation;
+                if ((generalAssociation = generalProperty.getAssociation()) == null) {
+                    continue;
+                }
+
+                if (hasInheritanceFromTo(specialAssociation, generalAssociation)) {
+                    continue property;
+                }
+
+                final ValidationRuleViolation v = new ValidationRuleViolation(specialAssociation,
+                        associationGeneralizationRule.getDescription() + ": [GENERAL] " + general.getName() + " - [SPECIFIC] " + special.getName());
+                v.addAction(new AddAssociationGeneralizationAction(specialAssociation, generalAssociation));
+                associationGeneralizationRule.addViolation(v);
             }
         }
     }
@@ -325,14 +328,9 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
         }
     }
 
-    private static boolean hasAnAssociation(Element superChild) {
-        return ((Property) superChild).getAssociation() != null;
-
-    }
-
-    private static boolean hasInheritanceFromTo(Classifier classifier, Classifier general) {
-        if (classifier != null) {
-            return ModelHelper.getGeneralClassifiersRecursivelly(classifier).contains(general);
+    private static boolean hasInheritanceFromTo(Classifier special, Classifier general) {
+        if (special != null) {
+            return ModelHelper.getGeneralClassifiersRecursivelly(special).contains(general);
         }
         else {
             return false;

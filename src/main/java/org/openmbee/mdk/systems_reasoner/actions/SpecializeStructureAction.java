@@ -176,7 +176,7 @@ public class SpecializeStructureAction extends SRAction {
                                         break assocRule;
                                     }
                                     else {
-                                        AddInheritanceToAssociationAction action = new AddInheritanceToAssociationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
+                                        AddAssociationGeneralizationAction action = new AddAssociationGeneralizationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
                                         action.actionPerformed(null);
                                     }
                                 }
@@ -187,7 +187,7 @@ public class SpecializeStructureAction extends SRAction {
                                         break assocRule;
                                     }
                                     else {
-                                        AddInheritanceToAssociationAction action = new AddInheritanceToAssociationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
+                                        AddAssociationGeneralizationAction action = new AddAssociationGeneralizationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
                                         action.actionPerformed(null);
                                     }
                                 }
