@@ -148,7 +148,9 @@ public class SpecializeStructureAction extends SRAction {
             }
             else if (ne instanceof Namespace) {
                 for (NamedElement nam : ((Namespace) ne).getOwnedMember()) {
-                    collectDiagrams((Namespace) nam, diagrams);
+                    if (nam instanceof Namespace) {
+                        collectDiagrams((Namespace) nam, diagrams);
+                    }
                 }
             }
         }
