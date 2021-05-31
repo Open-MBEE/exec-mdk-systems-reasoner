@@ -129,7 +129,7 @@ public class ImportCSVAction extends SRAction {
                         }
                     }
                     if (!redefined) {
-                        SetOrCreateRedefinableElementAction action = new SetOrCreateRedefinableElementAction(ns, (RedefinableElement) mem, false);
+                        RedefineAttributeAction action = new RedefineAttributeAction(ns, (RedefinableElement) mem, false, false, false);
                         action.run();
                     }
                 }
@@ -328,7 +328,7 @@ public class ImportCSVAction extends SRAction {
                         prop.setType(linkedElement);
                         if (el instanceof Property) {
                             if (((Property) el).getAssociation() != null) {
-                                SetOrCreateRedefinableElementAction.createInheritingAssociation((Property) el, owner, prop);
+                                RedefineAttributeAction.createInheritingAssociation((Property) el, owner, prop);
                             }
                         }
                     }

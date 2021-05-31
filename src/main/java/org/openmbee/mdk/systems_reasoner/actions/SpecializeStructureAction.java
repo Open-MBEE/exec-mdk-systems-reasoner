@@ -35,17 +35,19 @@ public class SpecializeStructureAction extends SRAction {
             Model.class
     );
 
+    private final Classifier classifier;
+    private final boolean isValidationMode;
     private final boolean isRecursive;
-    private final boolean individualMode;
-    private Classifier classifier;
-    private boolean isValidationMode;
+    private final boolean isIndividual;
+    private final boolean isMultiply;
 
-    public SpecializeStructureAction(final Classifier classifier, boolean isValidationMode, String id, boolean isRecursive, boolean isIndividual) {
+    public SpecializeStructureAction(final Classifier classifier, boolean isValidationMode, String id, boolean isRecursive, boolean isIndividual, boolean isMultiply) {
         super(id, classifier);
         this.classifier = classifier;
         this.isValidationMode = isValidationMode;
         this.isRecursive = isRecursive;
-        this.individualMode = isIndividual;
+        this.isIndividual = isIndividual;
+        this.isMultiply = isMultiply;
     }
 
 
@@ -73,10 +75,9 @@ public class SpecializeStructureAction extends SRAction {
                 container = (Namespace) dlg.getSelectedElement();
             }
 
-            Classifier specific = createSpecialClassifier(container, new ArrayList<RedefinableElement>(), new ArrayList<Classifier>());
-            SessionManager.getInstance().closeSession();
-
+            Classifier specific = createSpecialClassifier(container, new ArrayList<>(), new ArrayList<>());
             checkAssociationsForInheritance(specific, classifier);
+            SessionManager.getInstance().closeSession();
         }
     }
 
@@ -127,16 +128,34 @@ public class SpecializeStructureAction extends SRAction {
         }
         members.removeAll(removeElements);
 
-        for (final NamedElement ne : members) { // Exclude Classifiers for now -> Should Aspect Blocks be Redefined?
+        List<RedefinableElement> elementsToBeRedefined = new ArrayList<>();
+        for (NamedElement ne : members) { // Exclude Classifiers for now -> Should Aspect Blocks be Redefined?
             if (ne instanceof RedefinableElement && !((RedefinableElement) ne).isLeaf() && !(ne instanceof Classifier)) {
                 final RedefinableElement elementToBeRedefined = (RedefinableElement) ne;
-                RedefinableElement redefinedElement = SetOrCreateRedefinableElementAction.redefineRedefinableElement(specific, elementToBeRedefined, traveled, visited, individualMode, isRecursive);
-                redefinedElements.remove(redefinedElement);
+                RedefinableElement existingRedefiningElement = RedefineAttributeAction.findExistingRedefiningElement(specific, elementToBeRedefined);
+                if (existingRedefiningElement != null) {
+                    redefinedElements.remove(existingRedefiningElement);
+                }
+                if (RedefineAttributeAction.isNotRedefinable(specific, elementToBeRedefined)) {
+                    continue;
+                }
+                if (isMultiply && elementToBeRedefined instanceof Property &&
+                        ((Property) elementToBeRedefined).getSubsettedProperty().stream()
+                                .anyMatch(subsetted -> RedefineAttributeAction.getExplicitMultiplicity(subsetted) > 1)) {
+                    continue;
+                }
+                elementsToBeRedefined.add(elementToBeRedefined);
             }
         }
+
         for (RedefinableElement redefinedElement : redefinedElements) {
             redefinedElement.dispose();
         }
+
+        for (RedefinableElement elementToBeRedefined : elementsToBeRedefined) {
+            RedefineAttributeAction.redefineRedefinableElement(specific, elementToBeRedefined, traveled, visited, isIndividual, isRecursive, isMultiply);
+        }
+
         return specific;
     }
 

@@ -1,6 +1,5 @@
 package org.openmbee.mdk.systems_reasoner.actions;
 
-import com.nomagic.magicdraw.copypaste.CopyPasting;
 import com.nomagic.magicdraw.core.Application;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import gov.nasa.jpl.mbee.mdk.validation.GenericRuleViolationAction;
@@ -20,28 +19,30 @@ public class CreateSpecializedTypeAction extends GenericRuleViolationAction {
     }
 
     private static final String DEFAULT_NAME = "Create Specialized Classifier";
+
+    private final Property property;
+    private final Classifier parent;
+    private final String name;
+    private final boolean isIndividual;
     private final boolean isRecursive;
-
-    private Property property;
-    private Classifier parent;
-    private String name;
-    private boolean isIndividual;
+    private final boolean isMultiply;
 
 
-    public CreateSpecializedTypeAction(final Property property, final Classifier parent, final String name, boolean isIndividual, boolean isRecursive) {
+    public CreateSpecializedTypeAction(final Property property, final Classifier parent, final String name, boolean isIndividual, boolean isRecursive, boolean isMultiply) {
         super(name);
         this.property = property;
         this.parent = parent;
         this.name = name;
         this.isIndividual = isIndividual;
         this.isRecursive = isRecursive;
+        this.isMultiply = isMultiply;
     }
 
-    public static final void createSpecializedType(final Property property, final Classifier parent, boolean isIndividual, boolean isRecursive) {
-        createSpecializedType(property, parent, new ArrayList<RedefinableElement>(), new ArrayList<Classifier>(), isIndividual, isRecursive);
+    public static void createSpecializedType(final Property property, final Classifier parent, boolean isIndividual, boolean isRecursive, boolean isMultiply) {
+        createSpecializedType(property, parent, new ArrayList<>(), new ArrayList<>(), isIndividual, isRecursive, isMultiply);
     }
 
-    public static final boolean createSpecializedType(final StructuralFeature redefinedAttribute, final Classifier parent, final List<RedefinableElement> traveled, List<Classifier> visited, boolean isIndividual, boolean isRecursive) {
+    public static boolean createSpecializedType(final StructuralFeature redefinedAttribute, final Classifier parent, final List<RedefinableElement> traveled, List<Classifier> visited, boolean isIndividual, boolean isRecursive, boolean isMultiply) {
         if (!parent.isEditable()) {
             Application.getInstance().getGUILog().log(parent.getQualifiedName() + " is not editable. Skipping creating specialization.");
             return true;
@@ -70,7 +71,7 @@ public class CreateSpecializedTypeAction extends GenericRuleViolationAction {
             final Classifier general = (Classifier) redefinedAttribute.getType();
             Type special = null;
             if (isIndividual || (isRecursive && getExistingSpecial(redefinedAttribute) == null)) {
-                SpecializeStructureAction speca = new SpecializeStructureAction(general, false, "", isRecursive, isIndividual);
+                SpecializeStructureAction speca = new SpecializeStructureAction(general, false, "", isRecursive, isIndividual, isMultiply);
                 special = speca.createSpecialClassifier(parent, new ArrayList<>(traveled), visited);
             }
             else if (getExistingSpecial(redefinedAttribute) != null) {
@@ -85,28 +86,16 @@ public class CreateSpecializedTypeAction extends GenericRuleViolationAction {
                 return true;
             }
             redefinedAttribute.setType(special);
-
-
-//            if (isRecursive) {
-//                if (special instanceof Classifier) {
-//                    for (final NamedElement ne : ((Classifier) special).getInheritedMember()) {
-//                        if (ne instanceof RedefinableElement && !((RedefinableElement) ne).isLeaf()) {
-//                            SetOrCreateRedefinableElementAction.redefineRedefinableElement((Classifier) special, (RedefinableElement) ne, traveled, visited, isIndividual, isRecursive);
-//                        }
-//                    }
-//                }
-//            }
         }
         return true;
     }
 
     private static Type getExistingSpecial(StructuralFeature structuralFeature) {
-        Set<Type> types = new HashSet<Type>();
+        Set<Type> types = new HashSet<>();
         Element owner = structuralFeature.getOwner();
         for (RedefinableElement redef : structuralFeature.getRedefinedElement()) {
             if (redef instanceof TypedElement) {
                 types.add(((TypedElement) redef).getType());
-                //System.out.println("Found type: "+((TypedElement) redef).getType().getName() +" id  "+ ((TypedElement) redef).getType().toString() + " for SF " + structuralFeature.getName() + "  " + structuralFeature.toString());
             }
         }
         for (Element oe : owner.getOwnedElement()) {
@@ -115,7 +104,6 @@ public class CreateSpecializedTypeAction extends GenericRuleViolationAction {
                     for (RedefinableElement redef : ((Property) oe).getRedefinedElement()) {
                         if (redef instanceof TypedElement) {
                             if (types.contains(((TypedElement) redef).getType())) {
-                                //System.out.println("Found type: "+((TypedElement) oe).getType().getName() +" id  "+ ((TypedElement) oe).getType().toString() + " for SF " + redef.getName() + "  " + redef.toString());
                                 return ((Property) oe).getType();
                             }
                         }
@@ -127,45 +115,9 @@ public class CreateSpecializedTypeAction extends GenericRuleViolationAction {
         return null;
     }
 
-    public static final Classifier createSpecializedClassifier(final Classifier general, final Classifier parent, final StructuralFeature structuralFeature) {
-        for (final Class<? extends Classifier> c : UNSPECIALIZABLE_CLASSIFIERS) {
-            if (c.isAssignableFrom(general.getClass())) {
-                Application.getInstance().getGUILog()
-                        .log("[WARNING] " + (structuralFeature != null ? structuralFeature.getQualifiedName() : "< >") + " is a " + c.getSimpleName() + ", which is not specializable.");
-                return null;
-            }
-        }
-        // System.out.println(general.getQualifiedName());
-        //   final Classifier special = (Classifier) CopyPasting.copyPasteElement(general, parent, true);
-
-        // Collection<?> emptyCollection = new ArrayList<String>();
-        // special.getOwnedMember().retainAll(emptyCollection);
-        //  special.getGeneralization().retainAll(emptyCollection);
-
-
-        Classifier specific = (Classifier) CopyPasting.copyPasteElement(general, parent, true);
-        if (specific == null) {
-            return null;
-        }
-
-        ArrayList<NamedElement> members = new ArrayList<>();
-        for (NamedElement ne : specific.getOwnedMember()) {
-            members.add(ne);
-        }
-        for (NamedElement member : members) {
-            if (member instanceof RedefinableElement) {
-                specific.getOwnedMember().remove(member);
-                member.dispose();
-            }
-        }
-        specific.getGeneralization().clear();
-        SpecializeClassifierAction.specialize(specific, general);
-        return specific;
-    }
-
     @Override
     public void run() {
-        CreateSpecializedTypeAction.createSpecializedType(property, parent, isIndividual, isRecursive);
+        CreateSpecializedTypeAction.createSpecializedType(property, parent, isIndividual, isRecursive, isMultiply);
     }
 
     @Override

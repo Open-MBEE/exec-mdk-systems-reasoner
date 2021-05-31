@@ -18,7 +18,7 @@ public class AspectRemedyAction extends GenericRuleViolationAction {
     }
 
     public void run() {
-        Classifier realization = new SpecializeStructureAction(aspect, false, null, true, true).createSpecialClassifier(classifier, new ArrayList<>(), new ArrayList<>());
+        Classifier realization = new SpecializeStructureAction(aspect, false, null, true, true, false).createSpecialClassifier(classifier, new ArrayList<>(), new ArrayList<>());
         if (realization != null) {
             Property property = Project.getProject(classifier).getElementsFactory().createPropertyInstance();
             property.setClassifier(classifier);
