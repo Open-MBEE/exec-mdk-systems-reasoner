@@ -1,6 +1,6 @@
 # Cameo MDK Systems Reasoner
 
-[![Download](https://api.bintray.com/packages/openmbee/maven/mdk-systems-reasoner/images/download.svg)](https://bintray.com/openmbee/maven/mdk-systems-reasoner/_latestVersion) [![Jira](https://img.shields.io/badge/issues-jira-blue)](https://openmbee.atlassian.net/browse/MDK) [![CircleCI](https://circleci.com/gh/Open-MBEE/mdk-systems-reasoner.svg?style=shield)](https://circleci.com/gh/Open-MBEE/mdk-systems-reasoner) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/Open-MBEE/mdk-systems-reasoner.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Open-MBEE/mdk-systems-reasoner/context:java)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Open-MBEE/mdk-systems-reasoner?label=download)](https://github.com/Open-MBEE/mdk-systems-reasoner/releases/latest) [![Jira](https://img.shields.io/badge/issues-jira-blue)](https://openmbee.atlassian.net/browse/MDK) [![CircleCI](https://circleci.com/gh/Open-MBEE/mdk-systems-reasoner.svg?style=shield)](https://circleci.com/gh/Open-MBEE/mdk-systems-reasoner) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/Open-MBEE/mdk-systems-reasoner.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Open-MBEE/mdk-systems-reasoner/context:java)
 
 Convenience tooling for UML/SysML inheritance using the Block Specific Type pattern. Cameo MDK Systems Reasoner is a plugin for [Cameo Systems Modeler](https://www.nomagic.com/products/cameo-systems-modeler) and other No Magic environment bundles.
 
