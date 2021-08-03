@@ -10,10 +10,7 @@ import com.nomagic.uml2.ext.magicdraw.mdprofiles.Stereotype;
 import gov.nasa.jpl.mbee.mdk.validation.*;
 import org.openmbee.mdk.systems_reasoner.actions.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Objects;
+import java.util.*;
 
 public class SRValidationSuite extends ValidationSuite implements Runnable {
 
@@ -25,7 +22,7 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
     private static final ValidationRule attributeMissingRule = new ValidationRule("Missing Owned Redefinable Element", "Owned RedefinableElement is missing", ViolationSeverity.ERROR);
     private static final ValidationRule aspectMissingRule = new ValidationRule("Missing Defined Aspect", "An aspect is defined but not realized", ViolationSeverity.ERROR);
     private static final ValidationRule nameRule = new ValidationRule("Naming Inconsistency", "Names are inconsistent", ViolationSeverity.WARNING);
-    private static final ValidationRule subsetsRule = new ValidationRule("Redefined Property Subset Missing.", "Subset missing.", ViolationSeverity.WARNING);
+    private static final ValidationRule subsetsRule = new ValidationRule("Redefined Property Subset Missing.", "Subset missing", ViolationSeverity.WARNING);
     private static final ValidationRule attributeTypeRule = new ValidationRule("Attribute Type Inconsistency", "Attribute types are inconsistent", ViolationSeverity.WARNING);
     private static final ValidationRule generalSpecificNameRule = new ValidationRule("General Specific Name Inconsistency", "General and specific names are inconsistent", ViolationSeverity.INFO);
     private static final ValidationRule instanceClassifierExistenceRule = new ValidationRule("Instance Classifier Unspecified", "Instance classifier is not specified", ViolationSeverity.ERROR);
@@ -99,50 +96,60 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
 
                 for (final NamedElement ne : classifier.getInheritedMember()) { // Exclude Classifiers for now -> Should Aspect Blocks be Redefined?
                     if (ne instanceof RedefinableElement && !((RedefinableElement) ne).isLeaf() && !(ne instanceof Classifier)) {
-                        final RedefinableElement redefEl = (RedefinableElement) ne;
-                        RedefinableElement redefingEl = null;
+                        final RedefinableElement inheritedRedefinableElement = (RedefinableElement) ne;
+                        RedefinableElement redefiningElement = null;
 
-                        for (Element p : classifier.getOwnedElement()) {
-                            if (p instanceof RedefinableElement) {
-                                if (doesEventuallyRedefine((RedefinableElement) p, redefEl)) {
-                                    redefingEl = (RedefinableElement) p;
-                                    if (redefingEl instanceof Property && redefEl instanceof Property) {
-                                        if (!((Property) redefEl).getSubsettedProperty().isEmpty()) {
-                                            final ValidationRuleViolation v = new ValidationRuleViolation(classifier, subsetsRule.getDescription() + ": " + redefEl.getQualifiedName());
-                                            v.addAction(new SubsetRedefinedProperty((Property) redefEl, (Property) redefingEl));
+                        for (NamedElement ownedMember : classifier.getOwnedMember()) {
+                            if (ownedMember instanceof RedefinableElement) {
+                                if (doesEventuallyRedefine((RedefinableElement) ownedMember, inheritedRedefinableElement)) {
+                                    redefiningElement = (RedefinableElement) ownedMember;
+                                    if (redefiningElement instanceof Property && inheritedRedefinableElement instanceof Property) {
+                                        outer:
+                                        for (Property propertyToSubset : ((Property) inheritedRedefinableElement).getSubsettedProperty()) {
+                                            for (Property subsettedProperty : ((Property) redefiningElement).getSubsettedProperty()) {
+                                                if (subsettedProperty.equals(propertyToSubset) || doesEventuallyRedefine(subsettedProperty, propertyToSubset)) {
+                                                    continue outer;
+                                                }
+                                            }
+                                            final ValidationRuleViolation v = new ValidationRuleViolation(redefiningElement, subsetsRule.getDescription() + ": " + propertyToSubset.getQualifiedName() + " inherited from " + inheritedRedefinableElement.getQualifiedName());
+                                            v.addAction(new SubsetRedefinedProperty((Property) redefiningElement, propertyToSubset));
                                             attributeTypeRule.addViolation(v);
                                         }
-                                        break;
                                     }
                                 }
                             }
                         }
-                        if (redefingEl == null) {
+                        if (redefiningElement == null) {
                             boolean redefinedInContext = false;
                             for (final NamedElement ne2 : classifier.getInheritedMember()) {
-                                if (ne2 instanceof RedefinableElement && ne2 instanceof RedefinableElement && doesEventuallyRedefine((RedefinableElement) ne2, redefEl)) {
+                                if (ne2 instanceof RedefinableElement && ne2 instanceof RedefinableElement && doesEventuallyRedefine((RedefinableElement) ne2, inheritedRedefinableElement)) {
                                     redefinedInContext = true;
                                     break;
                                 }
                             }
                             if (!redefinedInContext) {
-                                final ValidationRuleViolation v = new ValidationRuleViolation(classifier, (ne instanceof Property && ((Property) ne).isComposite() ? "[COMPOSITE] " : "") +
-                                        (redefEl instanceof TypedElement && ((TypedElement) redefEl).getType() != null ? "[TYPED] " : "") + attributeMissingRule.getDescription() + ": " + redefEl.getQualifiedName());
+                                final ValidationRuleViolation v = new ValidationRuleViolation(classifier,
+                                        (ne instanceof Property && ((Property) ne).isComposite() ? "[COMPOSITE] " : "") +
+                                        (inheritedRedefinableElement instanceof TypedElement && ((TypedElement) inheritedRedefinableElement).getType() != null ? "[TYPED] " : "") +
+                                        (ne instanceof Property && RedefineAttributeAction.getExplicitMultiplicity((Property) ne) > 1 ? "[MULTIPLIABLE] " : "") +
+                                        attributeMissingRule.getDescription() + ": " + inheritedRedefinableElement.getQualifiedName()
+                                );
                                 for (final Property p : classifier.getAttribute()) {
-                                    if (p.getName().equals(redefEl.getName()) && !p.hasRedefinedElement()) {
-                                        v.addAction(new SetRedefinitionAction(p, redefEl, "Redefine by Name Collision"));
+                                    if (p.getName().equals(inheritedRedefinableElement.getName()) && !p.hasRedefinedElement()) {
+                                        v.addAction(new SetRedefinitionAction(p, inheritedRedefinableElement, "Redefine by Name Collision"));
                                     }
                                 }
                                 if (ne instanceof RedefinableElement) {
-                                    v.addAction(new SetOrCreateRedefinableElementAction(classifier, redefEl, false));
-                                    if (redefEl instanceof TypedElement) { // && ((TypedElement) redefEl).getType() != null
+                                    v.addAction(new RedefineAttributeAction(classifier, inheritedRedefinableElement, false, false, false));
+                                    if (inheritedRedefinableElement instanceof TypedElement) { // && ((TypedElement) redefEl).getType() != null
                                         // Composite tag added, so user can make an educated decision on whether to specialize or not. Non-composite properties are typically not specialized in the context of the Block Specific Type,
                                         // but there could be a number of valid reasons to do so.
                                         // Non-aggregation properties should only be redefined but the type not be specialized.
                                         // if (!((Property) ne).isComposite()) {
                                         // intentionally showing this option even if the type isn't specializable so the user doesn't have to go through
                                         // grouping them separately to validate. It will just ignore and log if a type isn't specializable.
-                                        v.addAction(new SetOrCreateRedefinableElementAction(classifier, redefEl, true, "Redefine Attribute & Specialize Types Recursively & Individually", true));
+                                        v.addAction(new RedefineAttributeAction(classifier, inheritedRedefinableElement, true, true, false, "Redefine Attribute & Specialize Types Recursively & Individually"));
+                                        v.addAction(new RedefineAttributeAction(classifier, inheritedRedefinableElement, true, true, true, "Redefine Attribute & Specialize Types Recursively, Individually & Multiply"));
                                         // }
                                     }
                                 }
@@ -150,15 +157,15 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
                             }
                         }
                         else {
-                            if ((redefingEl.getName() == null && redefEl.getName() != null) || (redefingEl.getName() != null && !redefingEl.getName().equals(redefEl.getName()))) {
-                                final ValidationRuleViolation v = new ValidationRuleViolation(redefingEl, nameRule.getDescription() + ": [GENERAL] " + redefEl.getName() + " - [SPECIFIC] " + redefingEl.getName());
-                                v.addAction(new RenameElementAction(redefEl, redefingEl, "Update Specific"));
-                                v.addAction(new RenameElementAction(redefingEl, redefEl, "Update General"));
+                            if ((redefiningElement.getName() == null && inheritedRedefinableElement.getName() != null) || (redefiningElement.getName() != null && !redefiningElement.getName().equals(inheritedRedefinableElement.getName()))) {
+                                final ValidationRuleViolation v = new ValidationRuleViolation(redefiningElement, nameRule.getDescription() + ": [GENERAL] " + inheritedRedefinableElement.getName() + " - [SPECIFIC] " + redefiningElement.getName());
+                                v.addAction(new RenameElementAction(inheritedRedefinableElement, redefiningElement, "Update Specific"));
+                                v.addAction(new RenameElementAction(redefiningElement, inheritedRedefinableElement, "Update General"));
                                 nameRule.addViolation(v);
                             }
-                            if (redefingEl instanceof TypedElement && redefEl instanceof TypedElement) {
-                                final TypedElement redefingTypdEl = (TypedElement) redefingEl;
-                                final TypedElement redefableTypdEl = (TypedElement) redefEl;
+                            if (redefiningElement instanceof TypedElement && inheritedRedefinableElement instanceof TypedElement) {
+                                final TypedElement redefingTypdEl = (TypedElement) redefiningElement;
+                                final TypedElement redefableTypdEl = (TypedElement) inheritedRedefinableElement;
 
                                 if ((redefingTypdEl.getType() == null && redefableTypdEl.getType() != null) || (redefingTypdEl.getType() != null && redefingTypdEl.getType() instanceof Classifier && redefableTypdEl.getType() instanceof Classifier
                                         && !doesEventuallyGeneralizeTo((Classifier) redefingTypdEl.getType(), (Classifier) redefableTypdEl.getType()))) {
