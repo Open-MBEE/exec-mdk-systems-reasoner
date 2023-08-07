@@ -3,7 +3,7 @@ package org.openmbee.mdk.systems_reasoner.actions;
 import com.nomagic.magicdraw.core.Application;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Classifier;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Generalization;
-import gov.nasa.jpl.mbee.mdk.validation.GenericRuleViolationAction;
+import org.openmbee.mdk.validation.GenericRuleViolationAction;
 
 public class SpecializeClassifierAction extends GenericRuleViolationAction {
     private static final String DEFAULT_NAME = "Specialize Classifier";

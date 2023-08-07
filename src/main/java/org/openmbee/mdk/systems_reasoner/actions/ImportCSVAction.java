@@ -15,10 +15,10 @@ import com.nomagic.magicdraw.ui.dialogs.selection.SelectionMode;
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdmodels.Model;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import com.nomagic.uml2.ext.magicdraw.metadata.UMLFactory;
-import gov.nasa.jpl.mbee.mdk.api.incubating.convert.Converters;
-import gov.nasa.jpl.mbee.mdk.util.Utils;
-import gov.nasa.jpl.mbee.mdk.validation.ValidationRule;
-import gov.nasa.jpl.mbee.mdk.validation.ValidationRuleViolation;
+import org.openmbee.mdk.api.incubating.convert.Converters;
+import org.openmbee.mdk.util.Utils;
+import org.openmbee.mdk.validation.ValidationRule;
+import org.openmbee.mdk.validation.ValidationRuleViolation;
 import org.openmbee.mdk.systems_reasoner.validation.SRValidationSuite;
 
 import javax.swing.*;

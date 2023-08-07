@@ -3,7 +3,7 @@ package org.openmbee.mdk.systems_reasoner.actions;
 import com.nomagic.magicdraw.core.Application;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.InstanceSpecification;
-import gov.nasa.jpl.mbee.mdk.util.Utils;
+import org.openmbee.mdk.util.Utils;
 import org.openmbee.mdk.systems_reasoner.validation.SRValidationSuite;
 
 import java.awt.event.ActionEvent;

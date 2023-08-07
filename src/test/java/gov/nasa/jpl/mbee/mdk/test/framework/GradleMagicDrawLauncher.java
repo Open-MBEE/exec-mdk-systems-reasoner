@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Created by igomes on 10/22/16.
  */
 public class GradleMagicDrawLauncher {
-    private static final String FRAMEWORK_LAUNCHER_CLASS = System.getProperty("com.nomagic.osgi.launcher", "com.nomagic.osgi.launcher.ProductionFrameworkLauncher");
+    private static final String FRAMEWORK_LAUNCHER_CLASS = System.getProperty("com.nomagic.osgi.launcher", "com.nomagic.magicdraw.Main");
 
     private URLClassLoader urlClassLoader;
     private String mainClass;
