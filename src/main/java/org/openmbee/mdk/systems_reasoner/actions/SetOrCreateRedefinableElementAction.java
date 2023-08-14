@@ -5,8 +5,8 @@ import com.nomagic.magicdraw.core.Application;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import com.nomagic.uml2.ext.magicdraw.compositestructures.mdinternalstructures.Connector;
 import com.nomagic.uml2.ext.magicdraw.metadata.UMLFactory;
-import gov.nasa.jpl.mbee.mdk.util.Utils;
-import gov.nasa.jpl.mbee.mdk.validation.GenericRuleViolationAction;
+import org.openmbee.mdk.util.Utils;
+import org.openmbee.mdk.validation.GenericRuleViolationAction;
 import org.openmbee.mdk.systems_reasoner.validation.SRValidationSuite;
 
 import java.util.ArrayList;

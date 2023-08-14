@@ -2,7 +2,7 @@ package org.openmbee.mdk.systems_reasoner.actions;
 
 import com.nomagic.magicdraw.ui.dialogs.specifications.SpecificationDialogManager;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
-import gov.nasa.jpl.mbee.mdk.validation.GenericRuleViolationAction;
+import org.openmbee.mdk.validation.GenericRuleViolationAction;
 
 public class OpenSpecificationAction extends GenericRuleViolationAction {
     private static final String DEFAULT_NAME = "Specification";

@@ -2,7 +2,7 @@ package org.openmbee.mdk.systems_reasoner.actions;
 
 import com.nomagic.magicdraw.core.Application;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
-import gov.nasa.jpl.mbee.mdk.validation.GenericRuleViolationAction;
+import org.openmbee.mdk.validation.GenericRuleViolationAction;
 
 public class SelectInContainmentTreeAction extends GenericRuleViolationAction {
     private static final String DEFAULT_NAME = "Select in Containment Tree";

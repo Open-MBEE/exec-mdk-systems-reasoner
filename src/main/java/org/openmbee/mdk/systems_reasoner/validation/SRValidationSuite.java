@@ -7,7 +7,7 @@ import com.nomagic.uml2.ext.magicdraw.classes.mddependencies.Dependency;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import com.nomagic.uml2.ext.magicdraw.commonbehaviors.mdbasicbehaviors.Behavior;
 import com.nomagic.uml2.ext.magicdraw.mdprofiles.Stereotype;
-import gov.nasa.jpl.mbee.mdk.validation.*;
+import org.openmbee.mdk.validation.*;
 import org.openmbee.mdk.systems_reasoner.actions.*;
 
 import java.util.ArrayList;
@@ -330,7 +330,7 @@ public class SRValidationSuite extends ValidationSuite implements Runnable {
 
     private static boolean hasInheritanceFromTo(Classifier special, Classifier general) {
         if (special != null) {
-            return ModelHelper.getGeneralClassifiersRecursivelly(special).contains(general);
+            return ModelHelper.collectGeneralClassifiersRecursively(special, new ArrayList<>()).contains(general);
         }
         else {
             return false;

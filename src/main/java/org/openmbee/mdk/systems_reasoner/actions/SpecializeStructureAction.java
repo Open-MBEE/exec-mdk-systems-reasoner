@@ -15,8 +15,8 @@ import com.nomagic.magicdraw.uml.symbols.DiagramPresentationElement;
 import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdmodels.Model;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
-import gov.nasa.jpl.mbee.mdk.api.incubating.convert.Converters;
-import gov.nasa.jpl.mbee.mdk.util.Utils;
+import org.openmbee.mdk.api.incubating.convert.Converters;
+import org.openmbee.mdk.util.Utils;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -206,7 +206,7 @@ public class SpecializeStructureAction extends SRAction {
 
     private boolean hasInheritanceFromTo(Classifier classifier, Classifier general) {
         if (classifier != null) {
-            return ModelHelper.getGeneralClassifiersRecursivelly(classifier).contains(general);
+            return ModelHelper.collectGeneralClassifiersRecursively(classifier, new ArrayList<>()).contains(general);
         }
         else {
             return false;

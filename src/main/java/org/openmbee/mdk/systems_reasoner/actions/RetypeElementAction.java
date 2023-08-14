@@ -2,7 +2,7 @@ package org.openmbee.mdk.systems_reasoner.actions;
 
 import com.nomagic.magicdraw.core.Application;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.TypedElement;
-import gov.nasa.jpl.mbee.mdk.validation.GenericRuleViolationAction;
+import org.openmbee.mdk.validation.GenericRuleViolationAction;
 
 public class RetypeElementAction extends GenericRuleViolationAction {
     private TypedElement source, target;

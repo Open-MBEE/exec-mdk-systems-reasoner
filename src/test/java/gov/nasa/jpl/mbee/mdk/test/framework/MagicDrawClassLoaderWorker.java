@@ -69,6 +69,7 @@ public class MagicDrawClassLoaderWorker implements Callable<Void> {
     }
 
     public Void call() throws Exception {
+        /*
         if (System.getProperty("org.gradle.worker.test.stuck") != null) {
             // Simulate a stuck worker. There's probably a way to inject this failure...
             Thread.sleep(30000);
@@ -132,14 +133,14 @@ public class MagicDrawClassLoaderWorker implements Callable<Void> {
             messagingServices.close();
             loggingManager.stop();
         }
-
+*/
         return null;
     }
 
     private WorkerLogEventListener configureLogging(LoggingManagerInternal loggingManager, ObjectConnection connection) {
         connection.useParameterSerializers(WorkerLoggingSerializer.create());
         WorkerLoggingProtocol workerLoggingProtocol = connection.addOutgoing(WorkerLoggingProtocol.class);
-        WorkerLogEventListener workerLogEventListener = new WorkerLogEventListener(workerLoggingProtocol);
+        WorkerLogEventListener workerLogEventListener = new WorkerLogEventListener();
         loggingManager.addOutputEventListener(workerLogEventListener);
         return workerLogEventListener;
     }

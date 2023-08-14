@@ -8,7 +8,7 @@
         class="org.openmbee.mdk.systems_reasoner.SystemsReasonerPlugin">
     <requires>
         <api version="1.0"/>
-        <required-plugin id="gov.nasa.jpl.mbee.mdk" name="Model Development Kit"/>
+        <required-plugin id="org.openmbee.mdk" name="Model Development Kit"/>
     </requires>
     <runtime>
         <!-- START AUTO-GENERATED -->
