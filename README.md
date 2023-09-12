@@ -9,11 +9,11 @@ Convenience tooling for UML/SysML inheritance using the Block Specific Type patt
 ## Prerequisites
 
 * [Cameo Systems Modeler (CSM)](https://www.nomagic.com/products/cameo-systems-modeler) or another No Magic environment bundle that includes the [SysML plugin](https://www.nomagic.com/product-addons/magicdraw-addons/sysml-plugin)
-    * The latest Cameo MDK Systems Reasoner version is tested with and supports **19.0 SP3**. Compatibility for previous versions of Cameo MDK Systems Reasoner can be found in the [compatibility matrices](https://github.com/Open-MBEE/open-mbee.github.io/wiki/Compatibilities).
+    * The latest Cameo MDK Systems Reasoner version is tested with and supports **2022 Refresh 1**. Compatibility for previous versions of Cameo MDK Systems Reasoner can be found in the [compatibility matrices](https://github.com/Open-MBEE/open-mbee.github.io/wiki/Compatibilities).
 
 ## Installation
 
-1. [Download](https://bintray.com/openmbee/maven/mdk-systems-reasoner/_latestVersion) the Cameo MDK Systems Reasoner plugin, e.g. `mdk-systems-reasoner-*-plugin.zip`.
+1. [Download](https://github.com/Open-MBEE/mdk-systems-reasoner/releases/latest) the Cameo MDK Systems Reasoner plugin, e.g. `mdk-systems-reasoner-*-plugin.zip`.
 
 2. Run CSM. From the main menu, select "Help" > "Resource/Plugin Manager".
    ![Resource/Plugin Manager](doc/images/resource-plugin-manager.png)
