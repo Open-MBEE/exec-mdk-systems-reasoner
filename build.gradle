@@ -96,7 +96,7 @@ dependencies {
     else {
         preCompile group: 'com.nomagic', name: 'democsm', version: '2022xRefresh1', classifier: 'Cameo_Systems_Modeler_2022x_Refresh1_HF1_no_install', ext: 'zip'
     }
-    preCompile group: 'org.openmbee.mdk.magic', name: 'mdk', version: '6.0.0-RC1', classifier: 'plugin', ext: 'zip'
+    preCompile group: 'org.openmbee.mdk.magic', name: 'mdk', version: '6.0.0', classifier: 'plugin', ext: 'zip'
 
     // This ensures classpath load order to match the MagicDraw provided order and then includes extras needed for non-OpenAPI stuff.
     // This was necessary because of the Application class stubbing that was done in the chromium libraries.
