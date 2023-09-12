@@ -17,7 +17,7 @@ import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.DirectedRelationship;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Package;
 import com.nomagic.uml2.ext.magicdraw.mdprofiles.Stereotype;
-import gov.nasa.jpl.mbee.mdk.api.incubating.convert.Converters;
+import org.openmbee.mdk.api.incubating.convert.Converters;
 import org.openmbee.mdk.systems_reasoner.api.SRConstants;
 
 import java.awt.*;

@@ -3,7 +3,7 @@ package org.openmbee.mdk.systems_reasoner.actions;
 import com.nomagic.magicdraw.core.Project;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Classifier;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Property;
-import gov.nasa.jpl.mbee.mdk.validation.GenericRuleViolationAction;
+import org.openmbee.mdk.validation.GenericRuleViolationAction;
 
 import java.util.ArrayList;
 

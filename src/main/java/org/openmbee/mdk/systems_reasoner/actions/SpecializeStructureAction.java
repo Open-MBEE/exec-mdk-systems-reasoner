@@ -15,8 +15,8 @@ import com.nomagic.magicdraw.uml.symbols.DiagramPresentationElement;
 import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdmodels.Model;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
-import gov.nasa.jpl.mbee.mdk.api.incubating.convert.Converters;
-import gov.nasa.jpl.mbee.mdk.util.Utils;
+import org.openmbee.mdk.api.incubating.convert.Converters;
+import org.openmbee.mdk.util.Utils;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -148,7 +148,9 @@ public class SpecializeStructureAction extends SRAction {
             }
             else if (ne instanceof Namespace) {
                 for (NamedElement nam : ((Namespace) ne).getOwnedMember()) {
-                    collectDiagrams((Namespace) nam, diagrams);
+                    if (nam instanceof Namespace) {
+                        collectDiagrams((Namespace) nam, diagrams);
+                    }
                 }
             }
         }
@@ -174,7 +176,7 @@ public class SpecializeStructureAction extends SRAction {
                                         break assocRule;
                                     }
                                     else {
-                                        AddInheritanceToAssociationAction action = new AddInheritanceToAssociationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
+                                        AddAssociationGeneralizationAction action = new AddAssociationGeneralizationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
                                         action.actionPerformed(null);
                                     }
                                 }
@@ -185,7 +187,7 @@ public class SpecializeStructureAction extends SRAction {
                                         break assocRule;
                                     }
                                     else {
-                                        AddInheritanceToAssociationAction action = new AddInheritanceToAssociationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
+                                        AddAssociationGeneralizationAction action = new AddAssociationGeneralizationAction(((Property) child).getAssociation(), ((Property) superChild).getAssociation());
                                         action.actionPerformed(null);
                                     }
                                 }
@@ -204,7 +206,7 @@ public class SpecializeStructureAction extends SRAction {
 
     private boolean hasInheritanceFromTo(Classifier classifier, Classifier general) {
         if (classifier != null) {
-            return ModelHelper.getGeneralClassifiersRecursivelly(classifier).contains(general);
+            return ModelHelper.collectGeneralClassifiersRecursively(classifier, new ArrayList<>()).contains(general);
         }
         else {
             return false;
