@@ -16,7 +16,7 @@ public class SpecializeClassifierAction extends GenericRuleViolationAction {
         this.general = general;
     }
 
-    public static final Generalization specialize(final Classifier specific, final Classifier general) {
+    public static Generalization specialize(final Classifier specific, final Classifier general) {
         final Generalization generalization = Application.getInstance().getProject().getElementsFactory().createGeneralizationInstance();
         generalization.setSpecific(specific);
         generalization.setGeneral(general);
