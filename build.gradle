@@ -34,33 +34,7 @@ apply plugin: 'distribution'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // mavenCentral()
     flatDir { dirs "libz" }
-    if (buildAccess == 'internal') {
-        maven {
-            url 'https://cae-artifactory.jpl.nasa.gov/artifactory/maven-libs-snapshot-virtual'
-            credentials {
-                username project.getProperties().get('artifactoryUsername')
-                password project.getProperties().get('artifactoryPassword')
-            }
-        }
-        maven {
-            url 'https://cae-artifactory.jpl.nasa.gov/artifactory/maven-libs-release-virtual'
-            credentials {
-                username project.getProperties().get('artifactoryUsername')
-                password project.getProperties().get('artifactoryPassword')
-            }
-        }
-    }
-    else {
-        ivy {
-            // http://download1.nomagic.com/magicdraw185sp2/MagicDraw_185_sp2_no_install.zip
-            url 'http://download1.nomagic.com/'
-            layout 'pattern', {
-                artifact '/[module][revision]/[classifier].[ext]'
-            }
-        }
-    }
     mavenCentral()
     maven {
         url 'https://repo.gradle.org/gradle/libs-releases-local/'
@@ -89,14 +63,9 @@ dependencies {
     testPublish group: 'org.openmbee.testrail', name: 'testrail-cli', version: '1.0.1'
 
     // Other dependencies we're unable to resolve via standard repositories
-
-    if (buildAccess == 'internal') {
-        preCompile group: 'gov.nasa.jpl.cae.nomagic', name: 'cae-cameo-systems-modeler-core', version: '4.3.1', classifier: 'linux', ext: 'zip'
-    }
-    else {
-        preCompile group: 'com.nomagic', name: 'democsm', version: '2022xRefresh2', classifier: 'Cameo_Systems_Modeler_2022x_Refresh2_HF1_no_install', ext: 'zip'
-    }
-    preCompile group: 'org.openmbee.mdk.magic', name: 'mdk', version: '6.0.0', classifier: 'plugin', ext: 'zip'
+    
+    preCompile group: 'com.nomagic', name: 'democsm', version: '2022xRefresh2', classifier: 'Cameo_Systems_Modeler_2022x_Refresh2_HF1_no_install', ext: 'zip'
+    preCompile group: 'org.openmbee.mdk.magic', name: 'mdk', version: '6.1.0', classifier: 'plugin', ext: 'zip'
 
     // This ensures classpath load order to match the MagicDraw provided order and then includes extras needed for non-OpenAPI stuff.
     // This was necessary because of the Application class stubbing that was done in the chromium libraries.
