@@ -22,7 +22,8 @@ public class SRConfigurator implements BrowserContextAMConfigurator, DiagramCont
     public static final String ID = "Specialize Structure";
     public static final String ID_RECURSIVE = "Specialize Structure Recursively";
     public static final String ID_RECURSIVE_INDIVIDUAL = "Specialize Recursively & Individually";
-    private SRAction validateAction, importCSVAction, specializeStructureRecursiveAction, specializeStructureAction, specializeStructureRecursivelyIndividuallyAction, createInstanceMenuAction, selectAspectAction;
+    public static final String ID_RECURSIVE_INDIVIDUAL_MULTIPLY = "Specialize Recursively, Individually & Multiply";
+    private SRAction validateAction, importCSVAction, specializeStructureRecursiveAction, specializeStructureAction, specializeStructureRecursivelyIndividuallyAction, specializeStructureRecursivelyIndividuallyMultiplyAction, createInstanceMenuAction, selectAspectAction;
 
     @Override
     public int getPriority() {
@@ -57,6 +58,7 @@ public class SRConfigurator implements BrowserContextAMConfigurator, DiagramCont
         specializeStructureRecursiveAction = null;
         specializeStructureAction = null;
         specializeStructureRecursivelyIndividuallyAction = null;
+        specializeStructureRecursivelyIndividuallyMultiplyAction = null;
         createInstanceMenuAction = null;
         importCSVAction = null;
         selectAspectAction = null;
@@ -89,6 +91,7 @@ public class SRConfigurator implements BrowserContextAMConfigurator, DiagramCont
         category.addAction(specializeStructureAction);
         category.addAction(specializeStructureRecursiveAction);
         category.addAction(specializeStructureRecursivelyIndividuallyAction);
+        category.addAction(specializeStructureRecursivelyIndividuallyMultiplyAction);
         category.addAction(selectAspectAction);
         category.addAction(createInstanceMenuAction);
 
@@ -140,9 +143,11 @@ public class SRConfigurator implements BrowserContextAMConfigurator, DiagramCont
             final Classifier classifier = (Classifier) element;
             validateAction = new ValidateAction(classifier);
             importCSVAction = new ImportCSVAction(classifier);
-            specializeStructureAction = new SpecializeStructureAction(classifier, false, ID, false, false);
-            specializeStructureRecursiveAction = new SpecializeStructureAction(classifier, false, ID_RECURSIVE, true, false);
-            specializeStructureRecursivelyIndividuallyAction = new SpecializeStructureAction(classifier, false, ID_RECURSIVE_INDIVIDUAL, true, true);
+            specializeStructureAction = new SpecializeStructureAction(classifier, false, ID, false, false, false);
+            specializeStructureRecursiveAction = new SpecializeStructureAction(classifier, false, ID_RECURSIVE, true, false, false);
+            specializeStructureRecursivelyIndividuallyAction = new SpecializeStructureAction(classifier, false, ID_RECURSIVE_INDIVIDUAL, true, true, false);
+            specializeStructureRecursivelyIndividuallyMultiplyAction = new SpecializeStructureAction(classifier, false, ID_RECURSIVE_INDIVIDUAL_MULTIPLY, true, true, true);
+
             createInstanceMenuAction = new CreateInstanceMenuAction(classifier);
 
             if (!ProjectUtilities.isElementInAttachedProject(classifier)) {
