@@ -5,6 +5,7 @@ import java.util.zip.ZipFile
 
 String buildAccess = project.getProperties().getOrDefault('buildAccess', 'opensource')
 String buildTag = project.getProperties().get('buildTag')
+buildTag = '3.0.0'
 if (buildTag != null && !buildTag.isEmpty() && buildTag != version) {
     throw new GradleException('Version mismatch.')
 }
@@ -23,7 +24,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.9.0'
+        //classpath group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.9.0'
     }
 }
 
@@ -254,12 +255,11 @@ distZip {
 distZip.dependsOn preDist
 
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.artifactory'
+//apply plugin: 'com.jfrog.artifactory'
+apply plugin: "signing"
 
 publishing {
     // Reference to Gradle publications defined in the build script.
-    // This is how we tell the Artifactory Plugin which artifacts should be
-    // published to Artifactory.
     publications {
         mavenJava(MavenPublication) {
             from components.java
@@ -275,10 +275,63 @@ publishing {
             artifact distZip {
                 classifier "plugin"
             }
+            pom {
+                name = project.name
+                description = "Cameo / Magic plugin for Block Specific Type"
+                url = "https://www.openmbee.org/"
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'openmbee'
+                        name = 'OpenMBEE'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/Open-MBEE/mdk-systems-reasoner.git'
+                    developerConnection = 'scm:git:https://github.com/Open-MBEE/mdk-systems-reasoner.git'
+                    url = 'https://github.com/Open-MBEE/mdk-systems-reasoner.git'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
         }
     }
 }
 
+signing {
+    //required { gradle.taskGraph.hasTask("publishToSonatype") }
+    //sign publishing.publications.mavenJava
+
+    if (project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+        sign publishing.publications.mavenJava
+    } else if (project.hasProperty('signingKey') && project.hasProperty('signingPassword')) {
+        def signingKey = signingKey.replaceAll(/\\n/, "\n")
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.mavenJava
+    }
+    /*if (project.hasProperty("signingKey") && project.hasProperty("signingPassword")) {
+        String signingKey = new String((project.findProperty("signingKey") as String).decodeBase64())
+        String signingPassword = project.findProperty("signingPassword")
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    }*/
+}
+/*
 artifactory {
     contextUrl = project.getProperties().get('artifactoryUrl')
     publish {
@@ -303,12 +356,14 @@ artifactory {
 }
 
 artifactoryPublish.dependsOn distZip
-
+*/
 
 installDist {
     destinationDir = file('build/plugin')
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
     doLast {
         copy {
+            duplicatesStrategy DuplicatesStrategy.EXCLUDE
             fileMode 0755
             from 'build/dependency-cache/extracted'
             from 'build/plugin'
